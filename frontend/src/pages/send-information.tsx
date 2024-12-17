@@ -7,8 +7,8 @@ const SendInformation: FC = () => {
   const [isWork, setIsWork] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [distance, setDistance] = useState<number>(0);
-  // const companyLocation = { lat: 39.762118, lng: 64.422589 };
-  const companyLocation = { lat: 39.754542, lng: 64.4266896 };
+  const companyLocation = { lat: 39.762118, lng: 64.422589 };
+  // const companyLocation = { lat: 39.754542, lng: 64.4266896 };
 
   useEffect(() => {
     const getUser = async () => {
