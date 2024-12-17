@@ -9,6 +9,7 @@ class AuthController {
       res.status(201).json(user);
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 
@@ -19,6 +20,7 @@ class AuthController {
       res.status(200).json(user);
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 
@@ -29,6 +31,7 @@ class AuthController {
       res.status(200).json(user);
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 
@@ -41,6 +44,7 @@ class AuthController {
       res.status(200).json(user);
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 
@@ -50,6 +54,7 @@ class AuthController {
       res.status(200).json({ message: "Siz dasturdan chiqdingiz!" });
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 
@@ -61,6 +66,7 @@ class AuthController {
       res.status(200).json(user);
     } catch (error) {
       console.log("Xato ", error);
+      next(error);
     }
   }
 }

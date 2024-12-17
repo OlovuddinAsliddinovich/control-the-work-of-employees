@@ -5,6 +5,8 @@ const cors = require("cors");
 const userRoute = require("./routes/auth.route");
 const fileUpload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
+const adminRoute = require("./routes/admin.route");
+const errorMiddleware = require("./middlewares/error.middleware");
 
 dotenv.config();
 
@@ -17,6 +19,9 @@ app.use(fileUpload());
 app.use(cookieParser());
 
 app.use("/api/auth", userRoute);
+app.use("/api/admin", adminRoute);
+
+app.use(errorMiddleware);
 
 const startApp = async () => {
   try {
