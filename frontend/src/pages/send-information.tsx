@@ -7,8 +7,9 @@ const SendInformation: FC = () => {
   const [isWork, setIsWork] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [distance, setDistance] = useState<number>(0);
-  const companyLocation = { lat: 39.762118, lng: 64.422589 };
-  // const companyLocation = { lat: 39.754542, lng: 64.4266896 };
+  const [loading, setLoading] = useState<boolean>(false);
+  // const companyLocation = { lat: 39.762118, lng: 64.422589 };
+  const companyLocation = { lat: 39.754542, lng: 64.4266896 };
 
   useEffect(() => {
     const getUser = async () => {
@@ -45,6 +46,7 @@ const SendInformation: FC = () => {
   };
 
   const handleLocation = () => {
+    setLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -70,6 +72,7 @@ const SendInformation: FC = () => {
     } else {
       console.error("Browser joylashuvni qo'llab-quvvatlamaydi!");
     }
+    setLoading(false);
   };
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -93,7 +96,7 @@ const SendInformation: FC = () => {
         <div className="w-full sm:w-[50%]">
           <div className="font-semibold text-[20px] my-3">Ishda eknligingizni tasdiqlash uchun joylashuvni yuboring</div>
           <button className="button w-full" onClick={handleLocation}>
-            Joylashuvni yuborish
+            {loading ? "Joylashuvni yuklanmoqda..." : "Joylashuvni yuborish"}
           </button>
           {location && (
             <div className="mt-4">
@@ -105,7 +108,7 @@ const SendInformation: FC = () => {
           )}
         </div>
       </div>
-      {isWork ? (
+      {!isWork ? (
         <>
           <h1 className="w-full text-2xl font-bold text-center cursor-default my-3">Rasmni yuborish</h1>
           <div className="w-full flex flex-col sm:flex-row gap-6">
@@ -146,6 +149,10 @@ const SendInformation: FC = () => {
                 Rasmni yuborish
               </button>
             </form>
+          </div>
+          <div className="flex justify-between py-3 w-full gap-4">
+            <button className="button w-full sm:w-[50%] bg-green-700">Ishni boshlash</button>
+            <button className="button w-full sm:w-[50%] bg-red-600 hover:bg-red-700">Ishni yakunlash</button>
           </div>
         </>
       ) : null}

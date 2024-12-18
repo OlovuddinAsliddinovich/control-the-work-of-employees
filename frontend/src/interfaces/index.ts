@@ -27,3 +27,14 @@ export interface LoadingState {
   isLoading: boolean;
   setIsLoading: () => void;
 }
+
+export interface UserType {
+  firstname?: string;
+  lastname?: string;
+  email: string;
+  password: string;
+  level?: string;
+  image?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

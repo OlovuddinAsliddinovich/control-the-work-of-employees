@@ -1,6 +1,32 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
+import { useAuthStore } from "../hooks/use-auth-store";
+import { useLoading } from "../hooks/use-loading";
+import { api } from "../services/api";
 
 const HomePage: FC = () => {
+  const { setLoggedIn, setUser } = useAuthStore();
+  const { setIsLoading } = useLoading();
+
+  const getUser = async () => {
+    setIsLoading();
+    try {
+      const { data } = await api.get("/auth/get-user");
+      setLoggedIn(true);
+      setUser(data);
+    } catch (error) {
+      // @ts-ignore
+      console.log(error.response.data.message);
+    } finally {
+      setIsLoading();
+    }
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      getUser();
+    }
+  }, []);
+
   return (
     <>
       <div className="flex gap-4 items-start justify-between flex-col sm:flex-row p-4 w-full">

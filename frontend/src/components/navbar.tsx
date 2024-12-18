@@ -1,15 +1,18 @@
 import { IoCloseCircle } from "react-icons/io5";
 import { useNavbarModal } from "../hooks/use-navbar-modal";
 import { FC } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { BASE_URL_API } from "../services/api";
+import { useAuthStore } from "../hooks/use-auth-store";
 
 const Navbar: FC = () => {
   const { isOpen, onOpen, onClose } = useNavbarModal();
+  const { loggedIn, user } = useAuthStore();
   const navigate = useNavigate();
 
   return (
     <nav className="bg-gray-800 h-[80px]">
-      <div className="mx-auto w-full px-2 sm:px-6">
+      <div className="mx-auto max-w-screen-xl px-2 sm:px-6">
         <div className="relative flex h-[80px] items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden" onClick={onOpen}>
             <button
@@ -88,23 +91,15 @@ const Navbar: FC = () => {
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
             <div className="relative ml-3">
-              <div>
-                <button
-                  type="button"
-                  className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  id="user-menu-button"
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                >
-                  <span className="absolute -inset-1.5"></span>
-                  <span className="sr-only">Open user menu</span>
-                  <img
-                    className="size-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
-                </button>
-              </div>
+              {loggedIn ? (
+                <div className="flex items-center gap-2" onClick={() => navigate("/profile")}>
+                  <img src={`${BASE_URL_API}/${user?.image}`} alt="Img" className="w-[50px] h-[50px] object-cover rounded-full cursor-pointer" />
+                </div>
+              ) : (
+                <Link to={"/sign-in"}>
+                  <button className="button">Kirish</button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
