@@ -13,7 +13,6 @@ module.exports = async function authMiddleware(req, res, next) {
     const { id } = validateAccessToken(accessToken);
 
     const employee = await Employee.findById(id).select("-password");
-    console.log(employee);
     if (!employee) {
       throw BaseError.UnatuhorizedError();
     }

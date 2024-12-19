@@ -16,4 +16,10 @@ userRoute.post("/logout", authMiddleware, AuthController.logout);
 
 userRoute.delete("/delete", adminAuthMiddleware, adminMiddleware, AuthController.deleteUser);
 
+userRoute.get("/users", AuthController.getUsers);
+
+userRoute.get("/users/:id", adminAuthMiddleware, adminMiddleware, AuthController.getUserById);
+
+userRoute.patch("/update/:id", adminAuthMiddleware, adminMiddleware, AuthController.updateUserById);
+
 module.exports = userRoute;

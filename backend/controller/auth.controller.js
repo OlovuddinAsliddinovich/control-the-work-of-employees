@@ -69,6 +69,37 @@ class AuthController {
       next(error);
     }
   }
+
+  async getUsers(req, res, next) {
+    try {
+      const users = await AuthService.getUsers();
+      res.status(200).json(users);
+    } catch (error) {
+      console.log("Xato ", error);
+      next(error);
+    }
+  }
+
+  async getUserById(req, res, next) {
+    try {
+      const user = await AuthService.getUserById(req.params.id);
+      res.status(200).json(user);
+    } catch (error) {
+      console.log("Xato ", error);
+      next(error);
+    }
+  }
+
+  async updateUserById(req, res, next) {
+    try {
+      const file = req.files ? req.files.image : null;
+      const user = await AuthService.updateUserById(req.params.id, req.body, file);
+      res.status(200).json(user);
+    } catch (error) {
+      console.log("Xato ", error);
+      next(error);
+    }
+  }
 }
 
 module.exports = new AuthController();

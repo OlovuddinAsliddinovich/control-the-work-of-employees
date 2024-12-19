@@ -17,6 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(cookieParser());
+app.use(express.static("static"));
 
 app.use("/api/auth", userRoute);
 app.use("/api/admin", adminRoute);

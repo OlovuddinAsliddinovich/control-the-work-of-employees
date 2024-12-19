@@ -118,6 +118,47 @@ class AuthService {
 
     return deletedUser;
   }
+
+  async getUsers() {
+    const users = await Employee.find().select("-password");
+    return users;
+  }
+
+  getUserById(id) {
+    return Employee.findById(id).select("-password");
+  }
+
+  async updateUserById(id, user, picture) {
+    const existUser = await Employee.findOne({ _id: id });
+    if (!existUser) throw BaseError.BadRequest("Bunday foydalanuvchi mavjud emas!");
+
+    let image = existUser.image;
+    if (picture) {
+      try {
+        FileService.deleteImage(existUser.image);
+        image = FileService.saveImage(picture);
+      } catch (err) {
+        throw BaseError.BadRequest("Rasmni yangilashda xatolik yuz berdi.");
+      }
+    }
+
+    if (user.password && user.password.trim() !== "") {
+      user.password = await hashPassword(user.password);
+    }
+
+    const updatedUser = {
+      ...user,
+      image,
+    };
+
+    const employee = await Employee.findOneAndUpdate({ _id: id }, updatedUser, { new: true, runValidators: true });
+
+    if (!employee) throw BaseError.BadRequest("Foydalanuvchini yangilashda xatolik yuz berdi.");
+
+    const employeeDto = new EmployeeDto(employee);
+
+    return employeeDto;
+  }
 }
 
 module.exports = new AuthService();

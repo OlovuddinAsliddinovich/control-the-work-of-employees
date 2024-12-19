@@ -2,6 +2,7 @@ import { FC, useEffect } from "react";
 import { useAuthStore } from "../hooks/use-auth-store";
 import { useLoading } from "../hooks/use-loading";
 import { api } from "../services/api";
+import UserLayout from "../components/layouts/user-layout";
 
 const HomePage: FC = () => {
   const { setLoggedIn, setUser } = useAuthStore();
@@ -28,7 +29,7 @@ const HomePage: FC = () => {
   }, []);
 
   return (
-    <>
+    <UserLayout>
       <div className="flex gap-4 items-start justify-between flex-col sm:flex-row p-4 w-full">
         <div className="w-full sm:w-[50%] border-border rounded">
           <img src="/buxdu.webp" alt="img" className="w-full object-cover" />
@@ -72,7 +73,7 @@ const HomePage: FC = () => {
           </p>
         </div>
       </div>
-    </>
+    </UserLayout>
   );
 };
 

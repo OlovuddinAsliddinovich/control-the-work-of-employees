@@ -1,40 +1,22 @@
-export interface EmployeeType {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-  address: {
-    street: string;
-    suite: string;
-    city: string;
-    zipcode: string;
-    geo: {
-      lat: string;
-      lng: string;
-    };
-  };
-
-  phone: string;
-  website: string;
-  compnay: {
-    name: string;
-    catchPhrase: string;
-    bs: string;
-  };
-}
-
 export interface LoadingState {
   isLoading: boolean;
   setIsLoading: () => void;
 }
 
 export interface UserType {
+  _id?: string;
   firstname?: string;
   lastname?: string;
   email: string;
   password: string;
   level?: string;
-  image?: string;
+  image?: string | File;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface AdminType {
+  username?: string;
+  password?: string;
+  role?: string;
 }
