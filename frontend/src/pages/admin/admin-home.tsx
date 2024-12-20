@@ -26,15 +26,15 @@ const AdminHomePage: FC = () => {
           <h1 className="text-3xl font-semibold text-gray-800 mb-4">Admin Bosh Sahifa</h1>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-blue-100 p-4 rounded shadow cursor-pointer">
+            <div onClick={() => navigate("/admin-employees")} className="bg-blue-100 p-4 rounded shadow cursor-pointer">
               <h2 className="text-xl font-bold text-blue-600 mb-2">Xodimlar</h2>
               <p className="text-gray-600">Yangi xodimlarni qo'shing, o'chiring va boshqaring.</p>
             </div>
-            <div className="bg-green-100 p-4 rounded shadow cursor-pointer">
+            <div onClick={() => navigate("/admin-info")} className="bg-green-100 p-4 rounded shadow cursor-pointer">
               <h2 className="text-xl font-bold text-green-600 mb-2">Ma'lumotlar</h2>
               <p className="text-gray-600">Kerakli ma'lumotlarni kuzatib boring.</p>
             </div>
-            <div className="bg-yellow-100 p-4 rounded shadow cursor-pointer">
+            <div onClick={() => navigate("/admin-employees")} className="bg-yellow-100 p-4 rounded shadow cursor-pointer">
               <h2 className="text-xl font-bold text-yellow-600 mb-2">Xodimlarni ro'yxatdan o'tkazish</h2>
               <p className="text-gray-600">Platformadagi ma'lumotlarni ko'rish.</p>
             </div>

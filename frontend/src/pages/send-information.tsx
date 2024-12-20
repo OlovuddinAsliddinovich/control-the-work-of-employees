@@ -20,7 +20,12 @@ const SendInformation: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imgLoading, setImgLoading] = useState<boolean>(false);
   const [startWork, setStartWork] = useState<boolean>(false);
+  // Kv
   const companyLocation = { lat: 39.754542, lng: 64.4266896 };
+  //Ped institut
+  // const companyLocation = { lat: 39.75007837599617, lng: 64.40922643666931 };
+  // BuxDu
+  // const companyLocation = { lat: 39.76213396393598, lng: 64.42253425708425 };
 
   useEffect(() => {
     window.scrollTo(0, 0);

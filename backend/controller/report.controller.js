@@ -5,6 +5,7 @@ const generateReport = async (req, res, next) => {
   try {
     const { startDate, endDate, userId } = req.query;
 
+    // Sana tekshiruv
     if (!startDate || !endDate) {
       return res.status(400).json({ message: "Start date va end date talab qilinadi." });
     }
@@ -16,6 +17,7 @@ const generateReport = async (req, res, next) => {
       return res.status(400).json({ message: "Noto'g'ri sana formati." });
     }
 
+    // Query yaratish
     const query = { date: { $gte: start, $lte: end } };
     if (userId) query.userId = userId;
 
@@ -25,75 +27,73 @@ const generateReport = async (req, res, next) => {
       return res.status(404).json({ message: "Hisobot topilmadi." });
     }
 
+    // Excel fayli yaratish
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Hisobot");
 
+    // Ustunlar yaratish
     worksheet.columns = [
       { header: "Foydalanuvchi", key: "user", width: 20 },
       { header: "Sanasi", key: "date", width: 15 },
       { header: "Ish boshlash vaqti", key: "startTime", width: 20 },
       { header: "Ish tugatish vaqti", key: "endTime", width: 20 },
-      { header: "Ish vaqti (soat)", key: "workHours", width: 15 },
+      { header: "Ish vaqti (soat)", key: "workHours", width: 20 },
     ];
 
+    // Umumiy ishlagan vaqtni hisoblash
     const userWorkData = {};
 
     workReports.forEach((report) => {
       const startTime = new Date(report.startTime);
       const endTime = new Date(report.endTime);
 
-      // Kunlar va soatlar orasidagi farqni hisoblash
-      const timeDiff = endTime - startTime; // Millisekundlarda farq
-      const hours = Math.floor(timeDiff / (1000 * 60 * 60)); // Soat
+      // Vaqtlar farqini hisoblash
+      const timeDiff = endTime - startTime; // Millisekundlarda
+      const hours = Math.floor(timeDiff / (1000 * 60 * 60)); // Soatlar
       const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)); // Daqiqalar
-      const days = Math.floor(hours / 24); // Kunlar
 
-      // Foydalanuvchi uchun ishlagan kun va soatlarni hisoblash
       const userId = report.userId._id.toString();
       if (!userWorkData[userId]) {
         userWorkData[userId] = {
           user: report.userId.firstname || "Noma'lum foydalanuvchi",
-          totalDays: 0,
           totalHours: 0,
           totalMinutes: 0,
-          workDaysList: new Set(), // Foydalanuvchining ishlagan kunlarini saqlash uchun Set
         };
       }
 
-      // Foydalanuvchi ishlagan kunni saqlash
-      const workDate = report.date.toISOString().split("T")[0]; // Sana faqat kun qismini olish
-      userWorkData[userId].workDaysList.add(workDate); // Ishlangan kunlarni qo'shish
-
-      // Jami soat va daqiqalarni hisoblash
+      // Foydalanuvchi ishlagan soatlarni hisoblash
       userWorkData[userId].totalHours += hours;
       userWorkData[userId].totalMinutes += minutes;
 
-      // Hisobotga qo'shish
+      // Har bir ish kuni uchun qator qo'shish
       worksheet.addRow({
         user: report.userId.firstname || "Noma'lum foydalanuvchi",
         date: report.date.toISOString().split("T")[0],
-        startTime: report.startTime || "Noma'lum",
-        endTime: report.endTime || "Noma'lum",
+        startTime: startTime.toLocaleTimeString("uz-UZ"),
+        endTime: endTime.toLocaleTimeString("uz-UZ"),
         workHours: `${hours} soat ${minutes} daqiqa`,
       });
     });
 
-    // Foydalanuvchining jami ishlagan kunlari va soatlari
+    // Jami ishlagan soatlarni hisoblash va qo'shish
     Object.values(userWorkData).forEach((data) => {
-      let totalWorkHours = data.totalHours;
-      let totalWorkMinutes = data.totalMinutes;
+      let totalHours = data.totalHours;
+      let totalMinutes = data.totalMinutes;
 
       // Daqiqalarni soatga aylantirish
-      totalWorkHours += Math.floor(totalWorkMinutes / 60); // Daqiqalarni soatga aylantiradi
-      totalWorkMinutes = totalWorkMinutes % 60; // Qolgan daqiqalarni saqlaydi
+      totalHours += Math.floor(totalMinutes / 60);
+      totalMinutes = totalMinutes % 60;
 
-      // Hisobotga jami ishlagan kunlarni qo'shish
       worksheet.addRow({
-        user: "Jami",
-        workHours: `${totalWorkHours} soat ${totalWorkMinutes} daqiqa`,
+        user: `${data.user} (Jami)`,
+        date: "—",
+        startTime: "—",
+        endTime: "—",
+        workHours: `${totalHours} soat ${totalMinutes} daqiqa`,
       });
     });
 
+    // Excel faylini javobga yozish
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent("hisobot.xlsx")}"`);
     await workbook.xlsx.write(res);
@@ -104,6 +104,4 @@ const generateReport = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  generateReport,
-};
+module.exports = { generateReport };
