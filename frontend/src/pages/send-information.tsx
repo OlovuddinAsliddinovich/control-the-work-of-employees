@@ -4,6 +4,8 @@ import UserLayout from "../components/layouts/user-layout";
 import { api, BASE_URL_API } from "../services/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { VscLoading } from "react-icons/vsc";
+import { MdNoteAdd } from "react-icons/md";
 
 const SendInformation: FC = () => {
   const [user, setUser] = useState<UserType | null>(null);
@@ -14,10 +16,13 @@ const SendInformation: FC = () => {
   const accessToken = localStorage.getItem("accessToken");
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-  // const companyLocation = { lat: 39.762118, lng: 64.422589 };
+  const [imgLoading, setImgLoading] = useState<boolean>(false);
+  const [startWork, setStartWork] = useState<boolean>(false);
+
   const companyLocation = { lat: 39.754542, lng: 64.4266896 };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (!accessToken) {
       navigate("/sign-in");
       toast.info("Tizimga kiring!");
@@ -27,28 +32,22 @@ const SendInformation: FC = () => {
       try {
         const { data } = await api.get(`/auth/get-user`);
         setUser(data);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
     getUser();
   }, []);
 
   const calculateDistance = (userLatitude: number, userLongitude: number, targetLatitude: number, targetLongitude: number): number => {
     const earthRadius = 6371000; // Yerning radiusi (metrda)
-
-    // Geografik koordinatalarni radianlarga aylantirish
     const userLatitudeInRadians = (userLatitude * Math.PI) / 180;
     const targetLatitudeInRadians = (targetLatitude * Math.PI) / 180;
     const deltaLatitude = ((targetLatitude - userLatitude) * Math.PI) / 180;
     const deltaLongitude = ((targetLongitude - userLongitude) * Math.PI) / 180;
 
-    // Haversine formulasi
     const a =
       Math.sin(deltaLatitude / 2) ** 2 + Math.cos(userLatitudeInRadians) * Math.cos(targetLatitudeInRadians) * Math.sin(deltaLongitude / 2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    // Masofani hisoblash (metrda)
     return earthRadius * c; // Masofa metrda
   };
 
@@ -65,18 +64,13 @@ const SendInformation: FC = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
-          console.log(`Joylashuv Olindi: `, position.coords);
-
-          // Foydalanuvchi va kompaniyaning joylashuvi orasidagi masofani hisoblash
           const calculatedDistance = calculateDistance(position.coords.latitude, position.coords.longitude, companyLocation.lat, companyLocation.lng);
           setDistance(calculatedDistance);
-          console.log(`Masofa: ${calculatedDistance.toFixed(2)} metr`);
 
-          // Agar masofa 200 metrdan kam yoki teng bo'lsa, ishni tasdiqlash
           if (calculatedDistance <= 200) {
-            setIsWork(true); // Masofa 200 metrdan kam bo'lsa ishni tasdiqlash
+            setIsWork(true);
           } else {
-            setIsWork(false); // Aks holda, ishni tasdiqlashni o'chirish
+            setIsWork(false);
           }
         },
         (error: GeolocationPositionError) => {
@@ -89,16 +83,50 @@ const SendInformation: FC = () => {
     setLoading(false);
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!image) return alert("Siz rasm tanlamagansiz!");
-    const formData = new FormData();
-    console.log(image);
-    formData.append("image", image);
+    setImgLoading(true);
+    try {
+      if (!image) return alert("Siz rasm tanlamagansiz!");
+      const formData = new FormData();
+      formData.append("image", image);
+      formData.append("id", user?.id || "");
+      const { data } = await api.post("/face/verify", formData);
+      toast.success(data?.message);
+      setStartWork(true);
+    } catch (error) {
+      // @ts-ignore
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setImgLoading(false);
+    }
   };
+
+  const handleWorkStart = async () => {
+    try {
+      // Ishni boshlash uchun so'rov yuborish
+      const { data } = await api.post(`/work/start`, { userId: user?.id });
+      toast.success(data?.message);
+      setIsWork(true); // Ishni boshlashni tasdiqlaymiz
+    } catch (error) {
+      toast.error("Ishni boshlashda xatolik yuz berdi.");
+    }
+  };
+
+  const handleWorkEnd = async () => {
+    try {
+      // Ishni yakunlash uchun so'rov yuborish
+      const { data } = await api.post(`/work/end`, { userId: user?.id });
+      toast.success(data?.message);
+      setIsWork(false); // Ish tugadi, shuning uchun holatni o'zgartiramiz
+    } catch (error) {
+      toast.error("Ishni yakunlashda xatolik yuz berdi.");
+    }
+  };
+
   return (
     <UserLayout>
-      <div className="mx-auto my-4 min-h-screen w-full px-2 sm:px-4 border border-black">
+      <div className="mx-auto my-4 min-h-screen w-full px-2 sm:px-4">
         <h1 className="text-center text-2xl font-bold py-4">Joylashuvni yuborish</h1>
         <div className="flex flex-col sm:flex-row w-full gap-5">
           <div className="w-full sm:w-[50%] border-border rounded">
@@ -110,7 +138,7 @@ const SendInformation: FC = () => {
             ></iframe>
           </div>
           <div className="w-full sm:w-[50%]">
-            <div className="font-semibold text-[20px] my-3">Ishda eknligingizni tasdiqlash uchun joylashuvni yuboring</div>
+            <div className="font-semibold text-[20px] my-3">Ishda ekanligingizni tasdiqlash uchun joylashuvni yuboring</div>
             <button className="button w-full" onClick={handleLocation}>
               {loading ? "Joylashuvni yuklanmoqda..." : "Joylashuvni yuborish"}
             </button>
@@ -131,7 +159,7 @@ const SendInformation: FC = () => {
               <div className="flex flex-1 w-full sm:w-[50%] flex-col bg-white py-8">
                 <img
                   src={`${BASE_URL_API}/${user?.image}`}
-                  className="w-[200px] h-[200px] border-[4px] border-blue-700 rounded-full mx-auto"
+                  className="w-[200px] h-[200px] object-cover border-[4px] border-blue-700 rounded-full mx-auto"
                   alt="img"
                 />
                 <p className="text-center font-semibold text-xl">{`${user?.firstname} ${user?.lastname}`}</p>
@@ -142,25 +170,37 @@ const SendInformation: FC = () => {
 
               <form className="w-full sm:w-[50%]">
                 <h1 className="font-semibold text-center sm:text-start">Yuzni aniqlash uchun rasm yuborish</h1>
+                <label htmlFor="img" className="my-3 border-dashed border-2 border-gray-400 w-[150px] h-[200px] flex items-center justify-center">
+                  {image ? (
+                    <img src={URL.createObjectURL(image)} alt="image" className="w-full h-full object-cover" />
+                  ) : (
+                    <MdNoteAdd className="w-[50%] h-[50%] text-gray-500 object-cover" />
+                  )}
+                </label>
                 <div className="flex flex-col gap-1 mt-4">
-                  <label htmlFor="img">Rasm tanlang</label>
                   <input
                     type="file"
                     placeholder="Rasm tanlanmagan"
                     onChange={(e) => handleChange(e)}
                     id="img"
-                    className="h-[40px] p-1 rounded cursor-pointer hover:outline outline-blue-500 outline-[2px] bg-white border border-blue-600"
+                    className="h-[40px] hidden p-1 rounded cursor-pointer hover:outline outline-blue-500 outline-[2px] bg-white border border-blue-600"
                   />
                 </div>
-                <button onClick={(e) => handleSubmit(e)} className="button my-3">
-                  Rasmni yuborish
+                <button disabled={imgLoading} onClick={(e) => handleSubmit(e)} className="button my-3 w-[200px] flex items-center justify-center">
+                  {imgLoading ? <VscLoading className="animate-spin" /> : "Rasmni yuborish"}
                 </button>
               </form>
             </div>
-            <div className="flex justify-between py-3 w-full gap-4">
-              <button className="button w-full sm:w-[50%] bg-green-700">Ishni boshlash</button>
-              <button className="button w-full sm:w-[50%] bg-red-600 hover:bg-red-700">Ishni yakunlash</button>
-            </div>
+            {startWork ? (
+              <div className="flex justify-between py-3 w-full gap-4">
+                <button className="button w-full sm:w-[50%] bg-green-700" onClick={handleWorkStart}>
+                  Ishni boshlash
+                </button>
+                <button className="button w-full sm:w-[50%] bg-red-600 hover:bg-red-700" onClick={handleWorkEnd}>
+                  Ishni yakunlash
+                </button>
+              </div>
+            ) : null}
           </>
         ) : null}
       </div>

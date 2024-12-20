@@ -18,9 +18,7 @@ const AdminNavbar: FC = () => {
       setIsAdmin(false);
       setAdmin(null);
       navigate("/");
-    } catch (error) {
-      console.log(error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -30,7 +28,6 @@ const AdminNavbar: FC = () => {
         setAdmin(data);
         setIsAdmin(true);
       } catch (error) {
-        console.log(error);
         if (!isAdmin) return navigate("/admin-sign");
       }
     };

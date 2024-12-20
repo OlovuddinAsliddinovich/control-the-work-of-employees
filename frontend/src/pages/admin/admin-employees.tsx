@@ -13,11 +13,8 @@ const AdminEmployees: FC = () => {
     const getUsers = async () => {
       try {
         const { data } = await api.get("/auth/users");
-        console.log(data);
         setUsers(data);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
     getUsers();
   }, []);

@@ -1,6 +1,6 @@
 import { IoCloseCircle } from "react-icons/io5";
 import { useNavbarModal } from "../hooks/use-navbar-modal";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { BASE_URL_API } from "../services/api";
 import { useAuthStore } from "../hooks/use-auth-store";
@@ -9,6 +9,13 @@ const Navbar: FC = () => {
   const { isOpen, onOpen, onClose } = useNavbarModal();
   const { loggedIn, user } = useAuthStore();
   const navigate = useNavigate();
+  const accessToken = localStorage.getItem("accessToken");
+
+  useEffect(() => {
+    if (!accessToken) {
+      navigate("/sign-in");
+    }
+  }, []);
 
   return (
     <nav className="bg-gray-800 h-[80px]">

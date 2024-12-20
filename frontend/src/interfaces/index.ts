@@ -5,6 +5,7 @@ export interface LoadingState {
 
 export interface UserType {
   _id?: string;
+  id?: string;
   firstname?: string;
   lastname?: string;
   email: string;

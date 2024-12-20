@@ -17,6 +17,7 @@ module.exports = async function authMiddleware(req, res, next) {
       throw BaseError.UnatuhorizedError();
     }
     req.employee = employee;
+
     next();
   } catch (error) {
     console.log(error);

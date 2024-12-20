@@ -12,9 +12,7 @@ const AdminHomePage: FC = () => {
       try {
         const { data } = await api.get("/auth/users");
         setUsers(data);
-      } catch (error) {
-        console.log(error);
-      }
+      } catch (error) {}
     };
 
     getUsers();
@@ -51,7 +49,7 @@ const AdminHomePage: FC = () => {
                 className="bg-white cursor-default p-4 rounded shadow mb-4 flex items-center justify-between"
               >
                 <div className="flex items-center">
-                  <img src={`${BASE_URL_API}/${user.image}`} alt="userImage" className="w-12 h-12 rounded-full mr-4" />
+                  <img src={`${BASE_URL_API}/${user.image}`} alt="userImage" className="w-12 h-12 object-cover rounded-full mr-4" />
                   <div>
                     <h2 className="text-lg font-semibold">
                       {user.firstname} {user.lastname}
