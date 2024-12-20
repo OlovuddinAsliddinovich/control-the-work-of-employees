@@ -26,7 +26,7 @@ const Profile: FC = () => {
         ) : user ? (
           <div className="overflow-hidden shadow-[0px_0px_30px_rgba(0,0,0,0.25)] rounded-lg border">
             <div className="px-4 py-5 sm:px-6 flex items-center justify-center">
-              <img src={`${BASE_URL_API}/${user?.image}`} className="w-[150px] h-[150px] rounded-full" alt="userImage" />
+              <img src={`${BASE_URL_API}/${user?.image}`} className="w-[150px] object-cover h-[150px] rounded-full" alt="userImage" />
             </div>
             <div className="px-4 py-5 sm:px-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900">Xodim profili</h3>

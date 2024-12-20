@@ -2,6 +2,7 @@ import { FC } from "react";
 
 interface AdminDeleteModalProps {
   employeeName: string;
+  id: string;
   onClose: () => void;
   onDelete: () => void;
 }

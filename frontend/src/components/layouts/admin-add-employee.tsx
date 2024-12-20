@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { UserType } from "../../interfaces";
 import { api } from "../../services/api";
+import { toast } from "react-toastify";
 
 interface AdminAddModalProps {
   setShowEditModal: (status: boolean) => void;
@@ -37,6 +38,8 @@ const AdminAddModal = ({ setShowEditModal, setUsers }: AdminAddModalProps) => {
       setShowEditModal(false);
     } catch (error) {
       console.error("Xodim ma'lumotlarini o'zgartirishda xatolik yuz berdi:", error);
+      // @ts-ignore
+      toast.error(error?.response?.data?.message, { autoClose: 3000 });
     } finally {
       setLoading(false);
     }

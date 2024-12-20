@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { VscLoading } from "react-icons/vsc";
 import { MdNoteAdd } from "react-icons/md";
+import { LuLoader } from "react-icons/lu";
 
 const SendInformation: FC = () => {
   const [user, setUser] = useState<UserType | null>(null);
@@ -16,9 +17,9 @@ const SendInformation: FC = () => {
   const accessToken = localStorage.getItem("accessToken");
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [imgLoading, setImgLoading] = useState<boolean>(false);
   const [startWork, setStartWork] = useState<boolean>(false);
-
   const companyLocation = { lat: 39.754542, lng: 64.4266896 };
 
   useEffect(() => {
@@ -29,10 +30,14 @@ const SendInformation: FC = () => {
       return;
     }
     const getUser = async () => {
+      setIsLoading(true);
       try {
         const { data } = await api.get(`/auth/get-user`);
         setUser(data);
-      } catch (error) {}
+      } catch (error) {
+      } finally {
+        setIsLoading(false);
+      }
     };
     getUser();
   }, []);
@@ -95,6 +100,8 @@ const SendInformation: FC = () => {
       toast.success(data?.message);
       setStartWork(true);
     } catch (error) {
+      setStartWork(false);
+      setImage(null);
       // @ts-ignore
       toast.error(error?.response?.data?.message);
     } finally {
@@ -128,81 +135,90 @@ const SendInformation: FC = () => {
     <UserLayout>
       <div className="mx-auto my-4 min-h-screen w-full px-2 sm:px-4">
         <h1 className="text-center text-2xl font-bold py-4">Joylashuvni yuborish</h1>
-        <div className="flex flex-col sm:flex-row w-full gap-5">
-          <div className="w-full sm:w-[50%] border-border rounded">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2915.2386295566066!2d64.41949952579327!3d39.76231547155231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f50060d1c5c0027%3A0xf76b636757c475a5!2sBukhara%20State%20University!5e1!3m2!1sen!2s!4v1734354823698!5m2!1sen!2s"
-              style={{ border: 0 }}
-              className="w-full h-[300px] sm:h-[500px]"
-              loading="lazy"
-            ></iframe>
-          </div>
-          <div className="w-full sm:w-[50%]">
-            <div className="font-semibold text-[20px] my-3">Ishda ekanligingizni tasdiqlash uchun joylashuvni yuboring</div>
-            <button className="button w-full" onClick={handleLocation}>
-              {loading ? "Joylashuvni yuklanmoqda..." : "Joylashuvni yuborish"}
-            </button>
-            {location && (
-              <div className="mt-4">
-                <p>
-                  {`${user?.firstname} ${user?.lastname}`} - {distance <= 200 ? "Siz ish joyiga kelgansiz!" : "Siz ish joyida emassiz!"}
-                </p>
-                <p>Masofa: {distance.toFixed(2)} metr</p>
-              </div>
-            )}
-          </div>
-        </div>
-        {isWork ? (
+        {isLoading ? (
+          <LuLoader className="animate-spin mx-auto my-5" />
+        ) : (
           <>
-            <h1 className="w-full text-2xl font-bold text-center cursor-default my-3">Rasmni yuborish</h1>
-            <div className="w-full flex flex-col sm:flex-row gap-6">
-              <div className="flex flex-1 w-full sm:w-[50%] flex-col bg-white py-8">
-                <img
-                  src={`${BASE_URL_API}/${user?.image}`}
-                  className="w-[200px] h-[200px] object-cover border-[4px] border-blue-700 rounded-full mx-auto"
-                  alt="img"
-                />
-                <p className="text-center font-semibold text-xl">{`${user?.firstname} ${user?.lastname}`}</p>
-                <p className="text-center text-gray-700">
-                  Kasbi: <span className="font-bold">{user?.level}</span>
-                </p>
+            <div className="flex flex-col sm:flex-row w-full gap-5">
+              <div className="w-full sm:w-[50%] border-border rounded">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2915.2386295566066!2d64.41949952579327!3d39.76231547155231!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f50060d1c5c0027%3A0xf76b636757c475a5!2sBukhara%20State%20University!5e1!3m2!1sen!2s!4v1734354823698!5m2!1sen!2s"
+                  style={{ border: 0 }}
+                  className="w-full h-[300px] sm:h-[500px]"
+                  loading="lazy"
+                ></iframe>
               </div>
-
-              <form className="w-full sm:w-[50%]">
-                <h1 className="font-semibold text-center sm:text-start">Yuzni aniqlash uchun rasm yuborish</h1>
-                <label htmlFor="img" className="my-3 border-dashed border-2 border-gray-400 w-[150px] h-[200px] flex items-center justify-center">
-                  {image ? (
-                    <img src={URL.createObjectURL(image)} alt="image" className="w-full h-full object-cover" />
-                  ) : (
-                    <MdNoteAdd className="w-[50%] h-[50%] text-gray-500 object-cover" />
-                  )}
-                </label>
-                <div className="flex flex-col gap-1 mt-4">
-                  <input
-                    type="file"
-                    placeholder="Rasm tanlanmagan"
-                    onChange={(e) => handleChange(e)}
-                    id="img"
-                    className="h-[40px] hidden p-1 rounded cursor-pointer hover:outline outline-blue-500 outline-[2px] bg-white border border-blue-600"
-                  />
-                </div>
-                <button disabled={imgLoading} onClick={(e) => handleSubmit(e)} className="button my-3 w-[200px] flex items-center justify-center">
-                  {imgLoading ? <VscLoading className="animate-spin" /> : "Rasmni yuborish"}
+              <div className="w-full sm:w-[50%]">
+                <div className="font-semibold text-[20px] my-3">Ishda ekanligingizni tasdiqlash uchun joylashuvni yuboring</div>
+                <button className="button w-full" onClick={handleLocation}>
+                  {loading ? "Joylashuvni yuklanmoqda..." : "Joylashuvni yuborish"}
                 </button>
-              </form>
+                {location && (
+                  <div className="mt-4">
+                    <p>
+                      {`${user?.firstname} ${user?.lastname}`} - {distance <= 200 ? "Siz ish joyiga kelgansiz!" : "Siz ish joyida emassiz!"}
+                    </p>
+                    <p>Masofa: {distance.toFixed(2)} metr</p>
+                  </div>
+                )}
+              </div>
             </div>
-            {startWork ? (
-              <div className="flex justify-between py-3 w-full gap-4">
-                <button className="button w-full sm:w-[50%] bg-green-700" onClick={handleWorkStart}>
-                  Ishni boshlash
-                </button>
-                <button className="button w-full sm:w-[50%] bg-red-600 hover:bg-red-700" onClick={handleWorkEnd}>
-                  Ishni yakunlash
-                </button>
-              </div>
+            {isWork ? (
+              <>
+                <h1 className="w-full text-2xl font-bold text-center cursor-default my-3">Rasmni yuborish</h1>
+                <div className="w-full flex flex-col sm:flex-row gap-6">
+                  <div className="flex flex-1 w-full sm:w-[50%] flex-col bg-white py-8">
+                    <img
+                      src={`${BASE_URL_API}/${user?.image}`}
+                      className="w-[200px] h-[200px] object-cover border-[4px] border-blue-700 rounded-full mx-auto"
+                      alt="img"
+                    />
+                    <p className="text-center font-semibold text-xl">{`${user?.firstname} ${user?.lastname}`}</p>
+                    <p className="text-center text-gray-700">
+                      Kasbi: <span className="font-bold">{user?.level}</span>
+                    </p>
+                  </div>
+
+                  <form className="w-full sm:w-[50%]">
+                    <h1 className="font-semibold text-center sm:text-start">Yuzni aniqlash uchun rasm yuborish</h1>
+                    <label
+                      htmlFor="img"
+                      className="my-3 cursor-pointer border-dashed border-2 border-gray-400 w-[150px] h-[200px] flex items-center justify-center"
+                    >
+                      {image ? (
+                        <img src={URL.createObjectURL(image)} alt="image" className="w-full h-full object-cover" />
+                      ) : (
+                        <MdNoteAdd className="w-[50%] h-[50%] text-gray-500 object-cover" />
+                      )}
+                    </label>
+                    <div className="flex flex-col gap-1 mt-4">
+                      <input
+                        type="file"
+                        placeholder="Rasm tanlanmagan"
+                        onChange={(e) => handleChange(e)}
+                        id="img"
+                        className="h-[40px] hidden p-1 rounded cursor-pointer hover:outline outline-blue-500 outline-[2px] bg-white border border-blue-600"
+                      />
+                    </div>
+                    <button disabled={imgLoading} onClick={(e) => handleSubmit(e)} className="button my-3 w-[200px] flex items-center justify-center">
+                      {imgLoading ? <VscLoading className="animate-spin" /> : "Rasmni yuborish"}
+                    </button>
+                  </form>
+                </div>
+                {startWork ? (
+                  <div className="flex justify-between py-3 w-full gap-4">
+                    <button className="button w-full sm:w-[50%] bg-green-700" onClick={handleWorkStart}>
+                      Ishni boshlash
+                    </button>
+                    <button className="button w-full sm:w-[50%] bg-red-600 hover:bg-red-700" onClick={handleWorkEnd}>
+                      Ishni yakunlash
+                    </button>
+                  </div>
+                ) : null}
+              </>
             ) : null}
           </>
-        ) : null}
+        )}
       </div>
     </UserLayout>
   );

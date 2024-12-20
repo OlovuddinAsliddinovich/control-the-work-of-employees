@@ -6,6 +6,7 @@ import { AdminLayout } from "../../components";
 import moment from "moment";
 import AdminEditModal from "../../components/layouts/admin-edit-employee-modal";
 import AdminDeleteModal from "../../components/layouts/admin-delete-employee-modal";
+import { toast } from "react-toastify";
 
 const AdminEmployeePage: FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,18 @@ const AdminEmployeePage: FC = () => {
     fetchEmployee();
   }, [id]);
 
-  const handleDelete = () => {};
+  const handleDelete = async () => {
+    try {
+      console.log(id);
+      await api.delete(`/auth/delete/${id}`);
+      toast.success("Xodim muvaffaqiyatli o'chirildi.");
+      window.location.href = "/admin-employees";
+    } catch (error) {
+      toast.error("Xodimni o'chirishda xatolik yuz berdi.");
+    } finally {
+      setShowDeleteModal(false);
+    }
+  };
 
   if (loading)
     return (
@@ -92,6 +104,7 @@ const AdminEmployeePage: FC = () => {
 
       {showDeleteModal && (
         <AdminDeleteModal
+          id={employee?._id || ""}
           employeeName={`${employee?.firstname} ${employee?.lastname}`}
           onClose={() => setShowDeleteModal(false)}
           onDelete={handleDelete}
