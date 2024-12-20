@@ -60,8 +60,8 @@ class AuthController {
 
   async deleteUser(req, res, next) {
     try {
-      const authorization = req.headers.authorization;
-      const user = await AuthService.deleteUser(authorization);
+      const id = req.params.id;
+      const user = await AuthService.deleteUser(id);
       res.clearCookie("refreshToken");
       res.status(200).json(user);
     } catch (error) {

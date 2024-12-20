@@ -14,7 +14,7 @@ userRoute.patch("/update", authMiddleware, AuthController.updateUser);
 
 userRoute.post("/logout", authMiddleware, AuthController.logout);
 
-userRoute.delete("/delete", adminAuthMiddleware, adminMiddleware, AuthController.deleteUser);
+userRoute.delete("/delete/:id", adminAuthMiddleware, adminMiddleware, AuthController.deleteUser);
 
 userRoute.get("/users", AuthController.getUsers);
 
