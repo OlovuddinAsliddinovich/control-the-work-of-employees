@@ -4,7 +4,6 @@ const canvas = require("canvas");
 const faceapi = require("face-api.js");
 const Employee = require("../models/employee-model");
 
-// TensorFlow muhitini sozlash
 const { Canvas, Image, ImageData } = canvas;
 faceapi.env.monkeyPatch({ Canvas, Image, ImageData });
 
